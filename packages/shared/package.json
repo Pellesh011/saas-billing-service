@@ -10,7 +10,7 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
+    "typescript": "^6.0.3",
     "zod": "^3.22.0"
   },
   "peerDependencies": {
