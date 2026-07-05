@@ -1,10 +1,8 @@
-import { Typography, Card, CardContent, Grid } from '@mui/material';
-import {
-  DollarSign,
-  Users,
-  CreditCard,
-  TrendingUp,
-} from 'lucide-react';
+import { Card, CardContent, Typography, Grid } from '@mui/material';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import PeopleIcon from '@mui/icons-material/People';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 
 const Dashboard = () => {
   return (
@@ -14,10 +12,10 @@ const Dashboard = () => {
       </Typography>
       <Grid container spacing={3}>
         {[
-          { title: 'MRR', value: '₽0', icon: DollarSign, color: '#3b82f6' },
-          { title: 'Активные подписки', value: '0', icon: CreditCard, color: '#22c55e' },
-          { title: 'Клиенты', value: '0', icon: Users, color: '#f59e0b' },
-          { title: 'Конверсия', value: '0%', icon: TrendingUp, color: '#8b5cf6' },
+          { title: 'MRR', value: '₽0', icon: AttachMoneyIcon, color: '#3b82f6' },
+          { title: 'Активные подписки', value: '0', icon: CreditCardIcon, color: '#22c55e' },
+          { title: 'Клиенты', value: '0', icon: PeopleIcon, color: '#f59e0b' },
+          { title: 'Конверсия', value: '0%', icon: TrendingUpIcon, color: '#8b5cf6' },
         ].map((item) => (
           <Grid item xs={12} sm={6} md={3} key={item.title}>
             <Card>
@@ -31,7 +29,7 @@ const Dashboard = () => {
                       {item.value}
                     </Typography>
                   </div>
-                  <item.icon size={32} color={item.color} />
+                  <item.icon sx={{ fontSize: 32, color: item.color }} />
                 </div>
               </CardContent>
             </Card>

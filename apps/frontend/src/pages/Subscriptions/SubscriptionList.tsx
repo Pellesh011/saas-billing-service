@@ -1,12 +1,10 @@
-import { List, Datagrid, TextField, DateField, ChipField } from 'react-admin';
-
-const statusChoices = [
-  { id: 'TRIALING', name: 'Триал' },
-  { id: 'ACTIVE', name: 'Активна' },
-  { id: 'PAST_DUE', name: 'Просрочена' },
-  { id: 'CANCELED', name: 'Отменена' },
-  { id: 'PAUSED', name: 'Приостановлена' },
-];
+import {
+  List,
+  Datagrid,
+  TextField,
+  DateField,
+  ChipField,
+} from 'react-admin';
 
 export const SubscriptionList = () => (
   <List>

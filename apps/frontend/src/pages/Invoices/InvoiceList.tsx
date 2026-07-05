@@ -1,4 +1,11 @@
-import { List, Datagrid, TextField, NumberField, DateField, ChipField } from 'react-admin';
+import {
+  List,
+  Datagrid,
+  TextField,
+  NumberField,
+  DateField,
+  ChipField,
+} from 'react-admin';
 
 export const InvoiceList = () => (
   <List>

@@ -1,17 +1,11 @@
-import { Admin, Resource, CustomRoutes } from 'react-admin';
-import { Route } from 'react-router-dom';
+import { Admin, Resource } from 'react-admin';
 import { dataProvider } from './providers/dataProvider';
 import { authProvider } from './providers/authProvider';
-import { store } from './store';
 import Dashboard from './pages/Dashboard/Dashboard';
-import PlanList from './pages/Plans/PlanList';
-import PlanCreate from './pages/Plans/PlanCreate';
-import PlanEdit from './pages/Plans/PlanEdit';
-import CustomerList from './pages/Customers/CustomerList';
-import CustomerCreate from './pages/Customers/CustomerCreate';
-import CustomerEdit from './pages/Customers/CustomerEdit';
-import SubscriptionList from './pages/Subscriptions/SubscriptionList';
-import InvoiceList from './pages/Invoices/InvoiceList';
+import { PlanList, PlanCreate, PlanEdit } from './pages/Plans/PlanList';
+import { CustomerList, CustomerCreate, CustomerEdit } from './pages/Customers/CustomerList';
+import { SubscriptionList } from './pages/Subscriptions/SubscriptionList';
+import { InvoiceList } from './pages/Invoices/InvoiceList';
 import Login from './routes/Login';
 
 const App = () => (

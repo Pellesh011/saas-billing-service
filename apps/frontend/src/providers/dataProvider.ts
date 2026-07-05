@@ -1,5 +1,4 @@
 import { DataProvider, fetchUtils } from 'react-admin';
-import { stringify } from 'query-string';
 
 const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
@@ -14,18 +13,28 @@ const httpClient = (url: string, options: any = {}) => {
   return fetchUtils.fetchJson(url, options);
 };
 
+const buildQuery = (params: Record<string, any>): string => {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      searchParams.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+    }
+  });
+  return searchParams.toString();
+};
+
 export const dataProvider: DataProvider = {
   getList: async (resource, params) => {
     const { page, perPage } = params.pagination;
     const { field, order } = params.sort;
-    const query = {
-      page: JSON.stringify(page),
-      limit: JSON.stringify(perPage),
-      sort: JSON.stringify(field),
-      order: JSON.stringify(order),
-      filter: JSON.stringify(params.filter),
-    };
-    const url = `${apiUrl}/${resource}?${stringify(query)}`;
+    const query = buildQuery({
+      page: page,
+      limit: perPage,
+      sort: field,
+      order: order,
+      filter: params.filter,
+    });
+    const url = `${apiUrl}/${resource}?${query}`;
     const { json } = await httpClient(url);
     return {
       data: json.data || json,
@@ -66,7 +75,7 @@ export const dataProvider: DataProvider = {
   },
 
   deleteMany: async (resource, params) => {
-    const responses = await Promise.all(
+    await Promise.all(
       params.ids.map((id) =>
         httpClient(`${apiUrl}/${resource}/${id}`, {
           method: 'DELETE',
@@ -77,25 +86,25 @@ export const dataProvider: DataProvider = {
   },
 
   getMany: async (resource, params) => {
-    const responses = await Promise.all(
+    const results = await Promise.all(
       params.ids.map((id) =>
         httpClient(`${apiUrl}/${resource}/${id}`).then(({ json }) => json.data || json),
       ),
     );
-    return { data: responses };
+    return { data: results };
   },
 
   getManyReference: async (resource, params) => {
     const { page, perPage } = params.pagination;
-    const query = {
-      page: JSON.stringify(page),
-      limit: JSON.stringify(perPage),
-      filter: JSON.stringify({
+    const query = buildQuery({
+      page: page,
+      limit: perPage,
+      filter: {
         ...params.filter,
         [params.target]: params.id,
-      }),
-    };
-    const url = `${apiUrl}/${resource}?${stringify(query)}`;
+      },
+    });
+    const url = `${apiUrl}/${resource}?${query}`;
     const { json } = await httpClient(url);
     return {
       data: json.data || json,
@@ -104,7 +113,7 @@ export const dataProvider: DataProvider = {
   },
 
   updateMany: async (resource, params) => {
-    const responses = await Promise.all(
+    await Promise.all(
       params.ids.map((id) =>
         httpClient(`${apiUrl}/${resource}/${id}`, {
           method: 'PATCH',
