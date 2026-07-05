@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PaymentProviderRegistry } from './core/payment-provider.registry';
-import { PAYMENT_PROVIDERS_OPTIONS, PaymentProvidersModuleOptions } from './payment-providers.module';
+import { PaymentProviderRegistry } from './payment-provider.registry';
+import { PAYMENT_PROVIDERS_OPTIONS, PaymentProvidersModuleOptions } from '../payment-providers.module';
 
 @Injectable()
 export class PaymentProviderFactory {
@@ -26,17 +26,10 @@ export class PaymentProviderFactory {
   }
 
   getAllProviders(): string[] {
-    return this.options.providers.map(p => p.name);
+    return this.options.providers.map((p: any) => p.name);
   }
 
-  getProviderConfig(name: string): PaymentProviderConfig | undefined {
-    return this.options.providers.find(p => p.name === name);
+  getProviderConfig(name: string): any {
+    return this.options.providers.find((p: any) => p.name === name);
   }
-}
-
-export interface PaymentProviderConfig {
-  name: string;
-  displayName: string;
-  providerClass: any;
-  config: Record<string, any>;
 }

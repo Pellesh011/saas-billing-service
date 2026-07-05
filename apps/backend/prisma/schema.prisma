@@ -347,7 +347,7 @@ enum NotificationType {
 
 enum NotificationChannel {
   EMAIL
-  SLACK
+  TELEGRAM
   WEBHOOK
   IN_APP
 }

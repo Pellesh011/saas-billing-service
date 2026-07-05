@@ -1,17 +1,12 @@
 # Stage 1: Build
 FROM node:20-alpine AS builder
 
-RUN corepack enable && corepack prepare pnpm@8.14.0 --activate
-
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json package-lock.json ./
 COPY apps/frontend/package.json ./apps/frontend/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/ui/package.json ./packages/ui/
-COPY packages/config/package.json ./packages/config/
 
-RUN pnpm install --frozen-lockfile
+RUN node -e "const p=require('./package.json');p.workspaces=['apps/frontend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))" && npm ci
 
 COPY tsconfig.base.json ./
 COPY apps/frontend/tsconfig.json ./apps/frontend/
@@ -22,11 +17,8 @@ COPY apps/frontend/postcss.config.js ./apps/frontend/
 COPY apps/frontend/index.html ./apps/frontend/
 COPY apps/frontend/src ./apps/frontend/src
 COPY apps/frontend/public ./apps/frontend/public
-COPY packages/shared ./packages/shared
-COPY packages/ui ./packages/ui
-COPY packages/config ./packages/config
 
-RUN cd apps/frontend && pnpm run build
+RUN cd apps/frontend && npm run build
 
 # Stage 2: Run with Nginx
 FROM nginx:alpine AS runner

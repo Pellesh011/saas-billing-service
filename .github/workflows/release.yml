@@ -20,20 +20,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
       - name: Create Release PR
         uses: changesets/action@v1
         with:
           version: ${{ github.event.inputs.version }}
-          publish: pnpm release
+          publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

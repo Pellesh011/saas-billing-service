@@ -1,7 +1,4 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
-import { DiscoveryService } from '@nestjs/core';
-import { PaymentProviderRegistry } from './core/payment-provider.registry';
-import { PaymentProviderFactory } from './core/payment-provider.factory';
 
 export interface PaymentProviderConfig {
   name: string;
@@ -39,12 +36,8 @@ export class PaymentProvidersModule {
       global: true,
       providers: [
         ...providers,
-        PaymentProviderRegistry,
-        PaymentProviderFactory,
       ],
       exports: [
-        PaymentProviderRegistry,
-        PaymentProviderFactory,
         PAYMENT_PROVIDERS_OPTIONS,
         ...providerTokens,
       ],

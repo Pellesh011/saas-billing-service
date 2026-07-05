@@ -6,6 +6,8 @@ export const StripeConfigSchema = z.object({
   webhookSecret: z.string().min(1, 'Webhook secret is required'),
   apiVersion: z.string().optional().default('2023-10-16'),
   connectAccountId: z.string().optional(),
+  // Stripe SDK uses apiKey
+  apiKey: z.string().optional(),
 });
 
 export const PaddleConfigSchema = z.object({

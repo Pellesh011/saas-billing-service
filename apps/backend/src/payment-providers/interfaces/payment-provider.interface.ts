@@ -33,7 +33,7 @@ export interface CreateSubscriptionInput {
   trialDays?: number;
   metadata?: Record<string, any>;
   paymentMethodId?: string;
-  prorationBehavior?: 'create_proration' | 'none' | 'always_invoice';
+  prorationBehavior?: 'create_prorations' | 'none' | 'always_invoice';
 }
 
 export interface SubscriptionResult {
@@ -108,7 +108,7 @@ export interface BillingPortalResult {
 export interface RefundInput {
   paymentId: string;
   amount?: number;
-  reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer' | 'other';
+  reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer';
   metadata?: Record<string, any>;
 }
 
@@ -116,7 +116,7 @@ export interface RefundResult {
   id: string;
   paymentId: string;
   amount: number;
-  status: RefundStatus;
+  status: RefundStatus | null;
   reason?: string;
   provider: string;
   providerId: string;

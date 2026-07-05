@@ -2,13 +2,13 @@ import { Button as MuiButton } from '@mui/material';
 import { forwardRef } from 'react';
 import { cn } from '../../utils/cn';
 
-export interface ButtonProps extends React.ComponentProps<typeof MuiButton> {
+export interface ButtonProps extends Omit<React.ComponentProps<typeof MuiButton>, 'variant' | 'color'> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'small' | 'medium' | 'large';
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', className, children, ...props }, ref) => {
+  ({ variant = 'primary', size = 'medium', className, children, ...props }, ref) => {
     const variantMap = {
       primary: 'contained',
       secondary: 'outlined',
@@ -24,9 +24,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     } as const;
 
     const sizeMap = {
-      sm: 'small',
-      md: 'medium',
-      lg: 'large',
+      small: 'small',
+      medium: 'medium',
+      large: 'large',
     } as const;
 
     return (
