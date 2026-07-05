@@ -5,9 +5,11 @@ RUN corepack enable && corepack prepare pnpm@8.14.0 --activate
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/frontend/package.json ./apps/frontend/
-COPY packages/*/package.json ./packages/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/ui/package.json ./packages/ui/
+COPY packages/config/package.json ./packages/config/
 
 RUN pnpm install --frozen-lockfile
 
@@ -19,6 +21,10 @@ COPY apps/frontend/tailwind.config.js ./apps/frontend/
 COPY apps/frontend/postcss.config.js ./apps/frontend/
 COPY apps/frontend/index.html ./apps/frontend/
 COPY apps/frontend/src ./apps/frontend/src
+COPY apps/frontend/public ./apps/frontend/public
+COPY packages/shared ./packages/shared
+COPY packages/ui ./packages/ui
+COPY packages/config ./packages/config
 
 RUN cd apps/frontend && pnpm run build
 
