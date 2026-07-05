@@ -1,7 +1,7 @@
 import { Box, Card, CardContent, Typography, TextField, Button, Stack } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../providers/apiClient';
+import { authProvider } from '@/providers/authProvider';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,10 +16,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await apiClient.post('/auth/login', { email, password });
-      const { accessToken, refreshToken } = response.data.data;
-      localStorage.setItem('token', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      await authProvider.login( { username: email, password })
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ошибка авторизации');
