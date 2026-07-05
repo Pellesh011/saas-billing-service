@@ -358,3 +358,21 @@ enum NotificationStatus {
   FAILED
   BOUNCED
 }
+
+model PaymentProviderConfig {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  displayName     String
+  provider        String
+  config          Json     @default("{}")
+  isActive        Boolean  @default(false)
+  isDefault       Boolean  @default(false)
+  priority        Int      @default(0)
+  webhookSecret   String?
+  webhookUrl      String?
+  supportedFeatures Json    @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("payment_provider_configs")
+}
