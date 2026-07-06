@@ -51,10 +51,10 @@ jobs:
           node-version: 22
           cache: 'npm'
       - run: npm ci
-      - run: npm run db:generate
-      - run: npm run db:push
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/billing_test
+      - run: npm run db:generate
+      - run: npm run db:push
       - run: npm run test:ci
 
   build:
