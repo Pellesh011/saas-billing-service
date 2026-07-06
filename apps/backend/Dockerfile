@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -11,14 +11,14 @@ RUN node -e "const p=require('./package.json');p.workspaces=['apps/backend'];req
 COPY tsconfig.base.json ./
 COPY apps/backend/tsconfig.json ./apps/backend/
 COPY apps/backend/nest-cli.json ./apps/backend/
-COPY apps/backend/prisma ./apps/backend/prisma
+COPY apps/backend/src/prisma_client ./apps/backend/src/prisma_client
 COPY apps/backend/src ./apps/backend/src
 
 RUN cd apps/backend && npx prisma generate
 RUN cd apps/backend && npm run build
 
 # Stage 2: Run
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
@@ -26,7 +26,7 @@ RUN apk add --no-cache libc6-compat
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
-COPY --from=builder /app/apps/backend/prisma ./apps/backend/prisma
+COPY --from=builder /app/apps/backend/src/prisma_client ./apps/backend/src/prisma_client
 COPY --from=builder /app/apps/backend/package.json ./apps/backend/
 
 RUN addgroup --system --gid 1001 nodejs
