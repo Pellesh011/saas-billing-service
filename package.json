@@ -13,7 +13,7 @@
     "test": "turbo run test",
     "test:ci": "turbo run test:ci",
     "db:generate": "prisma generate",
-    "db:push": "prisma push",
+    "db:push": "prisma db push",
     "db:migrate": "prisma migrate",
     "format": "prettier --write \"**/*.{ts,tsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md,yml,yaml}\"",
