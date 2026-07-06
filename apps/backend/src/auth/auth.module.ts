@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
@@ -16,7 +16,7 @@ import { PrismaModule } from '../prisma/prisma.module';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('config.jwt.secret'),
         signOptions: {
-          expiresIn: configService.get<string>('config.jwt.expiresIn', '15m'),
+          expiresIn: configService.get<string>('config.jwt.expiresIn', '15m') as unknown as NonNullable<JwtModuleOptions['signOptions']>['expiresIn'],
         },
       }),
       inject: [ConfigService],
