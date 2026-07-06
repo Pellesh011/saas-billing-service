@@ -5,7 +5,7 @@
 1. Fork репозитория
 2. Создание feature ветки: `git checkout -b feat/amazing-feature`
 3. Внесение изменений с соблюдением конвенций
-4. Проверка качества: `pnpm lint && pnpm typecheck && pnpm test:ci`
+4. Проверка качества: `npm run lint && npm run typecheck && npm run test:ci`
 5. Коммит с conventional commits: `git commit -m "feat: add amazing feature"`
 6. Push и создание Pull Request
 

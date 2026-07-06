@@ -1,5 +1,3 @@
-import { DiscoveryService } from '@nestjs/core';
-
 export const PAYMENT_PROVIDER_METADATA_KEY = 'payment:provider:metadata';
 
 export interface PaymentProviderMetadata {
@@ -9,16 +7,15 @@ export interface PaymentProviderMetadata {
   description?: string;
   supportedFeatures: string[];
   webhookEvents: string[];
-  configSchema: any;
+  configSchema: unknown;
 }
 
 export const PaymentProvider = (metadata: PaymentProviderMetadata): ClassDecorator => {
-  return (target: any) => {
-    DiscoveryService.createDecorator<PaymentProviderMetadata>()(target);
+  return (target: object) => {
     Reflect.defineMetadata(PAYMENT_PROVIDER_METADATA_KEY, metadata, target);
   };
 };
 
-export const getPaymentProviderMetadata = (target: any): PaymentProviderMetadata | undefined => {
+export const getPaymentProviderMetadata = (target: object): PaymentProviderMetadata | undefined => {
   return Reflect.getMetadata(PAYMENT_PROVIDER_METADATA_KEY, target);
 };

@@ -21,13 +21,13 @@
 ### Инфраструктура
 - **Containerization**: Docker + Docker Compose
 - **CI/CD**: GitHub Actions
-- **Monorepo**: pnpm workspaces + Turborepo
+- **Monorepo**: npm workspaces + Turborepo
 
 ## Быстрый старт
 
 ### Предварительные требования
 - Node.js 20+
-- pnpm 8+
+- npm 10+
 - Docker & Docker Compose
 - Аккаунт Stripe
 
@@ -37,7 +37,7 @@
 # Клонируем и устанавливаем зависимости
 git clone https://github.com/Pellesh011/saas-billing-service.git
 cd saas-billing-service
-pnpm install
+npm install
 
 # Настраиваем окружение
 cp .env.example .env
@@ -47,17 +47,17 @@ cp .env.example .env
 docker-compose up -d postgres redis
 
 # Запускаем миграции БД
-pnpm db:migrate
+npm run db:migrate
 
 # Запускаем dev-серверы
-pnam dev
+npm run dev
 ```
 
 ### Точки доступа
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - API Docs: http://localhost:3001/api/docs
-- Prisma Studio: `pnpm db:studio`
+- Prisma Studio: `npm run db:studio`
 
 ## Структура проекта
 
@@ -76,16 +76,16 @@ saas-billing-service/
 ## Доступные команды
 
 ```bash
-pnpm dev          # Запуск всех dev-серверов
-pnpm build        # Сборка всех пакетов
-pnpm lint         # Линтинг всех пакетов
-pnpm typecheck    # Проверка типов
-pnpm test         # Запуск тестов
-pnpm test:ci      # Запуск тестов в CI режиме
-pnpm db:generate  # Генерация Prisma клиента
-pnpm db:push      # Push схемы в БД
-pnpm db:migrate   # Запуск миграций
-pnpm format       # Форматирование кода
+npm run dev        # Запуск всех dev-серверов
+npm run build      # Сборка всех пакетов
+npm run lint       # Линтинг всех пакетов
+npm run typecheck  # Проверка типов
+npm test           # Запуск тестов
+npm run test:ci    # Запуск тестов в CI режиме
+npm run db:generate  # Генерация Prisma клиента
+npm run db:push    # Push схемы в БД
+npm run db:migrate # Запуск миграций
+npm run format     # Форматирование кода
 ```
 
 ## Деплой

@@ -8,8 +8,8 @@ export interface PaymentProvidersConfig {
 
 export interface ProviderRegistration {
   name: string;
-  providerClass: new (...args: any[]) => any;
-  config: Record<string, any>;
+  providerClass: new (...args: unknown[]) => unknown;
+  config: Record<string, unknown>;
   isActive: boolean;
   priority: number;
 }

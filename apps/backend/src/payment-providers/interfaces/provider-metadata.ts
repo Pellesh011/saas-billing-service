@@ -5,7 +5,7 @@ export interface ProviderMetadata {
   displayName: string;
   version: string;
   description?: string;
-  configSchema: z.ZodSchema<any>;
+  configSchema: z.ZodType<unknown>;
   supportedFeatures: ProviderFeature[];
   webhookEvents: string[];
 }
@@ -24,12 +24,12 @@ export enum ProviderFeature {
 }
 
 export interface ProviderConfig {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface ValidatedProviderConfig {
   provider: string;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   isValid: boolean;
   errors?: z.ZodIssue[];
 }
