@@ -28,8 +28,8 @@ const buildQuery = (params: Record<string, unknown>): string => {
 
 export const dataProvider: DataProvider = {
   getList: async (resource, params) => {
-    const { page, perPage } = params.pagination;
-    const { field, order } = params.sort;
+    const { page = 1, perPage = 10 } = params.pagination ?? {};
+    const { field = 'id', order = 'ASC' } = params.sort ?? {};
     const query = buildQuery({
       page: page,
       limit: perPage,

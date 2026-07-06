@@ -16,7 +16,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await authProvider.login( { username: email, password })
+      await authProvider.login({ username: email, password });
       navigate('/');
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'response' in err
@@ -30,11 +30,13 @@ const Login = () => {
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      bgcolor="#f5f5f5"
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        bgcolor: '#f5f5f5',
+      }}
     >
       <Card sx={{ width: 400 }}>
         <CardContent>
@@ -67,12 +69,7 @@ const Login = () => {
                   {error}
                 </Typography>
               )}
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                disabled={loading}
-              >
+              <Button type="submit" variant="contained" fullWidth disabled={loading}>
                 {loading ? 'Вход...' : 'Войти'}
               </Button>
             </Stack>
