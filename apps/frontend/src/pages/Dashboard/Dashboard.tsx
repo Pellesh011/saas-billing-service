@@ -17,7 +17,7 @@ const Dashboard = () => {
           { title: 'Клиенты', value: '0', icon: PeopleIcon, color: '#f59e0b' },
           { title: 'Конверсия', value: '0%', icon: TrendingUpIcon, color: '#8b5cf6' },
         ].map((item) => (
-          <Grid item xs={12} sm={6} md={3} key={item.title}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.title}>
             <Card>
               <CardContent>
                 <div className="flex items-center justify-between">
