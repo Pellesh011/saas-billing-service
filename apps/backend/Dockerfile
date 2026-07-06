@@ -14,7 +14,7 @@ COPY apps/backend/nest-cli.json ./apps/backend/
 COPY apps/backend/src/prisma_client ./apps/backend/src/prisma_client
 COPY apps/backend/src ./apps/backend/src
 
-RUN cd apps/backend && npx prisma generate
+RUN npx prisma generate
 RUN cd apps/backend && npm run build
 
 # Stage 2: Run
