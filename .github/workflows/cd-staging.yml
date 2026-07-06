@@ -22,12 +22,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/build-push-action@v7
         with:
-          context: ./apps/backend
+          context: .
+          file: ./apps/backend/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/backend:staging
       - uses: docker/build-push-action@v7
         with:
-          context: ./apps/frontend
+          context: .
+          file: ./apps/frontend/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/frontend:staging
       - name: Deploy to staging
