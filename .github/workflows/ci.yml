@@ -85,8 +85,17 @@ jobs:
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v7
         with:
-          context: .
+          context: ./apps/backend
+          file: ./apps/backend/Dockerfile
           push: false
-          tags: saas-billing/backend:${{ github.sha }},saas-billing/frontend:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: saas-billing/backend:${{ github.sha }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+      - uses: docker/build-push-action@v7
+        with:
+          context: ./apps/frontend
+          file: ./apps/frontend/Dockerfile
+          push: false
+          tags: saas-billing/frontend:${{ github.sha }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
