@@ -12,7 +12,7 @@
     "test": "jest --watch",
     "test:ci": "jest --ci --coverage --passWithNoTests",
     "db:generate": "prisma generate",
-    "db:push": "prisma db push",
+    "db:push": "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/billing  prisma db push --accept-data-loss --force-reset",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",

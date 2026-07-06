@@ -7,46 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String    @id @default(cuid())
-  email        String    @unique
-  passwordHash String
-  firstName    String?
-  lastName     String?
-  role         Role      @default(ADMIN)
-  isActive     Boolean   @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  @@map("users")
-}
-
 enum Role {
   ADMIN
   MANAGER
   VIEWER
-}
-
-model Plan {
-  id            String   @id @default(cuid())
-  name          String
-  description   String?
-  interval      Interval @default(MONTH)
-  price         Decimal  @default(0) @db.Decimal(10, 2)
-  currency      String   @default("RUB")
-  features      Json     @default("{}")
-  limits        Json     @default("{}")
-  isActive      Boolean  @default(true)
-  stripePriceId String?  @unique
-  trialDays     Int      @default(0)
-  sortOrder     Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  subscriptions Subscription[]
-
-  @@map("plans")
 }
 
 enum Interval {
@@ -56,99 +20,15 @@ enum Interval {
   YEAR
 }
 
-model Customer {
-  id               String   @id @default(cuid())
-  email            String   @unique
-  name             String?
-  company          String?
-  phone            String?
-  address          Json?
-  taxId            String?
-  stripeCustomerId String?  @unique
-  metadata         Json     @default("{}")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  subscriptions    Subscription[]
-  invoices         Invoice[]
-  payments         Payment[]
-  paymentMethods   PaymentMethod[]
-  usageRecords     UsageRecord[]
-
-  @@map("customers")
-}
-
-model Subscription {
-  id                   String             @id @default(cuid())
-  customerId           String
-  planId               String
-  status               SubscriptionStatus @default(TRIALING)
-  currentPeriodStart   DateTime
-  currentPeriodEnd     DateTime
-  trialStart           DateTime?
-  trialEnd             DateTime?
-  cancelAtPeriodEnd    Boolean            @default(false)
-  canceledAt           DateTime?
-  pausedAt             DateTime?
-  stripeSubscriptionId String?            @unique
-  stripePriceId        String?
-  quantity             Int                @default(1)
-  metadata             Json               @default("{}")
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-
-  customer             Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  plan                 Plan               @relation(fields: [planId], references: [id])
-  invoices             Invoice[]
-  usageRecords         UsageRecord[]
-
-  @@index([customerId])
-  @@index([status])
-  @@map("subscriptions")
-}
-
 enum SubscriptionStatus {
   TRIALING
   ACTIVE
   PAST_DUE
-  CANCELED
   PAUSED
+  CANCELED
+  UNPAID
   INCOMPLETE
   INCOMPLETE_EXPIRED
-  UNPAID
-}
-
-model Invoice {
-  id                 String        @id @default(cuid())
-  customerId         String
-  subscriptionId     String?
-  number             String        @unique
-  status             InvoiceStatus @default(DRAFT)
-  amount             Decimal       @db.Decimal(10, 2)
-  currency           String        @default("RUB")
-  subtotal           Decimal       @db.Decimal(10, 2)
-  tax                Decimal       @default(0) @db.Decimal(10, 2)
-  total              Decimal       @db.Decimal(10, 2)
-  amountPaid         Decimal       @default(0) @db.Decimal(10, 2)
-  amountDue          Decimal       @db.Decimal(10, 2)
-  dueDate            DateTime?
-  paidAt             DateTime?
-  voidedAt           DateTime?
-  stripeInvoiceId    String?       @unique
-  hostedInvoiceUrl   String?
-  invoicePdfUrl      String?
-  metadata           Json          @default("{}")
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-
-  customer           Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  subscription       Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
-  lineItems          InvoiceLineItem[]
-  payments           Payment[]
-
-  @@index([customerId])
-  @@index([status])
-  @@map("invoices")
 }
 
 enum InvoiceStatus {
@@ -157,54 +37,6 @@ enum InvoiceStatus {
   PAID
   VOID
   UNCOLLECTIBLE
-}
-
-model InvoiceLineItem {
-  id          String       @id @default(cuid())
-  invoiceId   String
-  description String
-  quantity    Int          @default(1)
-  unitPrice   Decimal      @db.Decimal(10, 2)
-  amount      Decimal      @db.Decimal(10, 2)
-  type        LineItemType @default(SUBSCRIPTION)
-  metadata    Json         @default("{}")
-  createdAt   DateTime     @default(now())
-
-  invoice     Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-
-  @@map("invoice_line_items")
-}
-
-enum LineItemType {
-  SUBSCRIPTION
-  USAGE
-  ONE_TIME
-  DISCOUNT
-  TAX
-}
-
-model Payment {
-  id                     String        @id @default(cuid())
-  invoiceId              String?
-  customerId             String
-  amount                 Decimal       @db.Decimal(10, 2)
-  currency               String        @default("RUB")
-  status                 PaymentStatus @default(PENDING)
-  method                 PaymentMethodType
-  stripePaymentIntentId  String?       @unique
-  stripeChargeId         String?       @unique
-  failureCode            String?
-  failureMessage         String?
-  metadata               Json          @default("{}")
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-
-  invoice                Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  customer               Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-
-  @@index([customerId])
-  @@index([status])
-  @@map("payments")
 }
 
 enum PaymentStatus {
@@ -217,6 +49,13 @@ enum PaymentStatus {
   PARTIALLY_REFUNDED
 }
 
+enum RefundStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
 enum PaymentMethodType {
   CARD
   BANK_TRANSFER
@@ -225,109 +64,25 @@ enum PaymentMethodType {
   OTHER
 }
 
-model PaymentMethod {
-  id                     String             @id @default(cuid())
-  customerId             String
-  type                   PaymentMethodType
-  stripePaymentMethodId  String?            @unique
-  brand                  String?
-  last4                  String?
-  expMonth               Int?
-  expYear                Int?
-  isDefault              Boolean            @default(false)
-  metadata               Json               @default("{}")
-  createdAt              DateTime           @default(now())
-  updatedAt              DateTime           @updatedAt
-
-  customer               Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
-
-  @@index([customerId])
-  @@map("payment_methods")
-}
-
-model UsageRecord {
-  id                  String   @id @default(cuid())
-  subscriptionId      String
-  customerId          String
-  metric              String
-  quantity            Int
-  timestamp           DateTime @default(now())
-  periodStart         DateTime
-  periodEnd           DateTime
-  stripeUsageRecordId String?  @unique
-  metadata            Json     @default("{}")
-  createdAt           DateTime @default(now())
-
-  subscription        Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  customer            Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-
-  @@index([subscriptionId, metric, periodStart])
-  @@index([customerId])
-  @@map("usage_records")
-}
-
-model WebhookEvent {
-  id              String        @id @default(cuid())
-  provider        String        @default("stripe")
-  eventType       String
-  stripeEventId   String?       @unique
-  status          WebhookStatus @default(PENDING)
-  payload         Json
-  errorMessage    String?
-  attempts        Int           @default(0)
-  lastAttemptAt   DateTime?
-  processedAt     DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-
-  @@index([provider, eventType])
-  @@index([status])
-  @@map("webhook_events")
+enum LineItemType {
+  SUBSCRIPTION
+  USAGE
+  ONE_TIME
+  DISCOUNT
+  TAX
 }
 
 enum WebhookStatus {
   PENDING
-  PROCESSING
-  SUCCEEDED
+  ACTIVE
+  DISABLED
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
   FAILED
-  DEAD_LETTER
-}
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  action     String
-  entityType String
-  entityId   String
-  oldData    Json?
-  newData    Json?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([createdAt])
-  @@map("audit_logs")
-}
-
-model Notification {
-  id        String              @id @default(cuid())
-  type      NotificationType
-  channel   NotificationChannel
-  recipient String
-  subject   String?
-  content   String
-  status    NotificationStatus  @default(PENDING)
-  error     String?
-  sentAt    DateTime?
-  metadata  Json                @default("{}")
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
-
-  @@index([status])
-  @@index([recipient])
-  @@map("notifications")
+  RETRYING
 }
 
 enum NotificationType {
@@ -356,23 +111,683 @@ enum NotificationStatus {
   PENDING
   SENT
   FAILED
-  BOUNCED
 }
 
-model PaymentProviderConfig {
-  id              String   @id @default(cuid())
-  name            String   @unique
-  displayName     String
-  provider        String
-  config          Json     @default("{}")
-  isActive        Boolean  @default(false)
-  isDefault       Boolean  @default(false)
-  priority        Int      @default(0)
-  webhookSecret   String?
-  webhookUrl      String?
-  supportedFeatures Json    @default("[]")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+enum ProviderEventStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+  IGNORED
+}
 
-  @@map("payment_provider_configs")
+enum Currency {
+  USD
+  EUR
+  GBP
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  role         Role     @default(VIEWER)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  company     String?
+  phone       String?
+  address     Json?
+  taxId       String?
+  metadata    Json     @default("{}")
+  deletedAt   DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subscriptions Subscription[]
+  invoices       Invoice[]
+  payments       Payment[]
+  paymentMethods PaymentMethod[]
+  usageRecords   UsageRecord[]
+  providerCustomers ProviderCustomer[]
+
+  // FIX: missing opposite relation for Notification.customer
+  notifications Notification[]
+
+  @@index([email])
+  @@map("customers")
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  features    Json     @default("{}")
+  limits      Json     @default("{}")
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  versions    PlanVersion[]
+
+  @@map("plans")
+}
+
+model PlanVersion {
+  id          String   @id @default(cuid())
+  planId      String
+  version     Int
+
+  amount      Decimal @db.Decimal(14,2)
+  currency    Currency
+  interval    Interval
+  trialDays   Int     @default(0)
+
+  validFrom   DateTime
+  validUntil  DateTime?
+  isActive    Boolean @default(true)
+
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plan        Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  providerPlans ProviderPlan[]
+  subscriptionItems SubscriptionItem[]
+
+  @@unique([planId, version])
+  @@index([planId])
+  @@index([validFrom])
+  @@map("plan_versions")
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  customerId  String
+  status      SubscriptionStatus @default(TRIALING)
+
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+
+  trialStart  DateTime?
+  trialEnd    DateTime?
+
+  cancelAtPeriodEnd Boolean @default(false)
+  canceledAt  DateTime?
+  pausedAt    DateTime?
+
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  items SubscriptionItem[]
+  invoices Invoice[]
+  usageRecords UsageRecord[]
+  providerSubscriptions ProviderSubscription[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("subscriptions")
+}
+
+model SubscriptionItem {
+  id String @id @default(cuid())
+
+  subscriptionId String
+  planVersionId String
+
+  quantity Int @default(1)
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  planVersion PlanVersion @relation(fields: [planVersionId], references: [id])
+
+  usageRecord UsageRecord[]
+
+  // FIX: missing opposite relation for InvoiceItem.subscriptionItem
+  invoiceItems InvoiceItem[]
+
+  @@index([subscriptionId])
+  @@index([planVersionId])
+  @@map("subscription_items")
+}
+
+model ProviderUsageRecord {
+  id String @id @default(uuid())
+
+  usageRecordId String
+  providerAccountId String
+
+  providerUsageRecordId String
+
+  metric String
+  quantity Decimal @db.Decimal(18,6)
+  unit String?
+
+  periodStart DateTime?
+  periodEnd DateTime?
+
+  rawPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  usageRecord UsageRecord @relation(fields: [usageRecordId], references: [id], onDelete: Cascade)
+
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerUsageRecordId])
+  @@index([usageRecordId])
+  @@index([providerAccountId])
+  @@index([metric])
+}
+
+model UsageRecord {
+  id String @id @default(cuid())
+
+  subscriptionId String
+  customerId String
+  subscriptionItemId String?
+
+  metric String
+  quantity Decimal @db.Decimal(18,6)
+  unit String?
+
+  periodStart DateTime
+  periodEnd DateTime
+
+  recordedAt DateTime @default(now())
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  subscriptionItem SubscriptionItem? @relation(fields: [subscriptionItemId], references: [id], onDelete: SetNull)
+
+  providerUsageRecords ProviderUsageRecord[]
+
+  @@index([subscriptionId])
+  @@index([customerId])
+  @@index([metric])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@map("usage_records")
+}
+
+model Invoice {
+  id String @id @default(cuid())
+
+  customerId String
+  subscriptionId String?
+
+  number String
+  billingReason String?
+
+  status InvoiceStatus @default(DRAFT)
+
+  currency Currency
+
+  subtotal Decimal @db.Decimal(14,2)
+  discount Decimal @default(0) @db.Decimal(14,2)
+  tax Decimal @default(0) @db.Decimal(14,2)
+  total Decimal @db.Decimal(14,2)
+  amountPaid Decimal @default(0) @db.Decimal(14,2)
+  amountDue Decimal @db.Decimal(14,2)
+
+  dueDate DateTime?
+  paidAt DateTime?
+  voidedAt DateTime?
+  notes String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  items InvoiceItem[]
+  payments Payment[]
+  providerInvoices ProviderInvoice[]
+
+  @@unique([customerId, number])
+  @@index([subscriptionId])
+  @@index([status])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id String @id @default(cuid())
+
+  invoiceId String
+  subscriptionItemId String?
+
+  type LineItemType
+  description String
+
+  quantity Decimal @default(1) @db.Decimal(18,6)
+  unitPrice Decimal @db.Decimal(14,2)
+  amount Decimal @db.Decimal(14,2)
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  subscriptionItem SubscriptionItem? @relation(fields: [subscriptionItemId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model PaymentMethod {
+  id String @id @default(cuid())
+
+  customerId String
+  type PaymentMethodType
+
+  displayName String?
+  brand String?
+  last4 String?
+  expMonth Int?
+  expYear Int?
+  holderName String?
+
+  isDefault Boolean @default(false)
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  payments Payment[]
+  providerPaymentMethods ProviderPaymentMethod[]
+
+  @@index([customerId])
+  @@map("payment_methods")
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  invoiceId String?
+  customerId String
+  paymentMethodId String?
+
+  status PaymentStatus @default(PENDING)
+
+  amount Decimal @db.Decimal(14,2)
+  currency Currency
+
+  failureCode String?
+  failureMessage String?
+  failureCategory String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+
+  refunds Refund[]
+  providerPayments ProviderPayment[]
+
+  @@index([customerId])
+  @@index([invoiceId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+model Refund {
+  id String @id @default(cuid())
+
+  paymentId String
+  status RefundStatus @default(PENDING)
+
+  amount Decimal @db.Decimal(14,2)
+  currency Currency
+
+  reason String?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  providerRefunds ProviderRefund[]
+
+  @@index([paymentId])
+  @@index([status])
+  @@map("refunds")
+}
+
+model PaymentProvider {
+  id String @id @default(uuid())
+  code String @unique
+  name String
+  isActive Boolean @default(true)
+  configSchema Json?
+  createdAt DateTime @default(now())
+
+  accounts PaymentProviderAccount[]
+}
+
+model PaymentProviderAccount {
+  id String @id @default(uuid())
+  providerId String
+  name String
+  isActive Boolean @default(true)
+
+  credentialsEncrypted Json
+  webhookSecretEncrypted String?
+  webhookUrl String?
+  externalAccountId String?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  provider PaymentProvider @relation(fields: [providerId], references: [id])
+
+  customers ProviderCustomer[]
+  subscriptions ProviderSubscription[]
+  paymentMethods ProviderPaymentMethod[]
+
+  providerUsageRecord ProviderUsageRecord[]
+  invoices ProviderInvoice[]
+  payments ProviderPayment[]
+  refunds ProviderRefund[]
+  events ProviderEvent[]
+  webhooks Webhook[]
+  providerPlans ProviderPlan[]
+
+  @@unique([providerId, externalAccountId])
+  @@index([providerId])
+}
+
+model ProviderPlan {
+  id String @id @default(uuid())
+
+  planVersionId String
+  providerAccountId String
+
+  providerPlanId String
+  status String
+
+  rawPayload Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  planVersion PlanVersion @relation(fields: [planVersionId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerPlanId])
+  @@index([planVersionId])
+}
+
+model ProviderCustomer {
+  id String @id @default(uuid())
+
+  customerId String
+  providerAccountId String
+
+  providerCustomerId String
+  email String?
+  rawPayload Json?
+  createdAt DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerCustomerId])
+}
+
+model ProviderSubscription {
+  id String @id @default(uuid())
+
+  subscriptionId String
+  providerAccountId String
+
+  providerSubscriptionId String
+  status String
+
+  currentPeriodStart DateTime?
+  currentPeriodEnd DateTime?
+  cancelAtPeriodEnd Boolean?
+
+  rawPayload Json?
+  lastSyncedAt DateTime?
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerSubscriptionId])
+}
+
+model ProviderPaymentMethod {
+  id String @id @default(uuid())
+
+  paymentMethodId String
+  providerAccountId String
+
+  providerPaymentMethodId String
+  type String
+  isDefault Boolean @default(false)
+
+  billingDetails Json?
+  rawPayload Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerPaymentMethodId])
+}
+
+model ProviderInvoice {
+  id String @id @default(uuid())
+
+  invoiceId String
+  providerAccountId String
+
+  providerInvoiceId String
+  status String
+  pdfUrl String?
+
+  rawPayload Json?
+  createdAt DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+}
+
+model ProviderPayment {
+  id String @id @default(uuid())
+
+  paymentId String
+  providerAccountId String
+
+  providerPaymentId String
+  status String
+
+  amountCents Int
+  currency Currency
+  failureReason String?
+
+  rawPayload Json?
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+}
+
+model ProviderRefund {
+  id String @id @default(uuid())
+
+  refundId String
+  providerAccountId String
+
+  providerRefundId String
+  status String
+
+  amountCents Int
+  currency Currency
+
+  rawPayload Json?
+  createdAt DateTime @default(now())
+
+  refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+}
+
+model ProviderEvent {
+  id String @id @default(uuid())
+
+  providerAccountId String
+
+  providerEventId String
+  eventType String
+
+  payload Json
+
+  receivedAt DateTime @default(now())
+  processedAt DateTime?
+  processingStatus ProviderEventStatus
+  error String?
+
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([providerAccountId, providerEventId])
+  @@index([eventType])
+  @@index([processedAt])
+  @@index([processingStatus])
+}
+
+model Webhook {
+  id String @id @default(uuid())
+
+  providerAccountId String
+  eventType String
+
+  endpointUrl String
+  secretEncrypted String?
+
+  status WebhookStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+
+  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+
+  deliveries WebhookDelivery[]
+
+  @@index([providerAccountId, status])
+}
+
+model WebhookDelivery {
+  id String @id @default(uuid())
+
+  webhookId String
+  eventId String
+
+  status WebhookDeliveryStatus @default(PENDING)
+
+  requestBody Json
+  responseBody Json?
+  httpStatus Int?
+
+  attempt Int @default(1)
+  nextRetryAt DateTime?
+
+  createdAt DateTime @default(now())
+  processedAt DateTime?
+
+  webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, status])
+  @@index([nextRetryAt])
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  actorType String
+  actorId String?
+
+  action String
+
+  entityType String
+  entityId String
+
+  metadata Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorType, actorId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  customerId String?
+
+  type NotificationType
+  channel NotificationChannel
+
+  event String
+
+  title String?
+  message String?
+
+  payload Json?
+
+  status NotificationStatus @default(PENDING)
+
+  sentAt DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, createdAt])
 }
