@@ -4,7 +4,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-COPY prisma.config.ts ./
+
 COPY apps/backend/package.json ./apps/backend/
 
 RUN node -e "const p=require('./package.json');p.workspaces=['apps/backend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))" && npm ci
@@ -15,7 +15,6 @@ COPY apps/backend/nest-cli.json ./apps/backend/
 COPY apps/backend/src/prisma_client ./apps/backend/src/prisma_client
 COPY apps/backend/src ./apps/backend/src
 
-RUN npx prisma generate
 RUN cd apps/backend && npm run build
 
 # Stage 2: Run
