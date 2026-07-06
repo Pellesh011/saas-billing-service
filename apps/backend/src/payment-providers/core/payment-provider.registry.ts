@@ -1,11 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
-import { PAYMENT_PROVIDER_METADATA_KEY } from '../decorators/payment-provider.decorator';
+import { PAYMENT_PROVIDER_METADATA_KEY, PaymentProviderMetadata } from '../decorators/payment-provider.decorator';
+import { PaymentProvider } from '../interfaces/payment-provider.interface';
 
 @Injectable()
 export class PaymentProviderRegistry implements OnModuleInit {
-  private providers = new Map<string, any>();
-  private metadata = new Map<string, any>();
+  private providers = new Map<string, PaymentProvider>();
+  private metadata = new Map<string, PaymentProviderMetadata>();
 
   constructor(
     private readonly discovery: DiscoveryService,
@@ -23,36 +24,36 @@ export class PaymentProviderRegistry implements OnModuleInit {
       const instance = wrapper.instance;
       if (!instance) continue;
 
-      const metadata = this.reflector.get(
+      const meta = this.reflector.get<PaymentProviderMetadata>(
         PAYMENT_PROVIDER_METADATA_KEY,
         instance.constructor,
       );
 
-      if (metadata && instance.name) {
-        this.providers.set(metadata.name, instance);
-        this.metadata.set(metadata.name, metadata);
+      if (meta && instance.name) {
+        this.providers.set(meta.name, instance as PaymentProvider);
+        this.metadata.set(meta.name, meta);
       }
     }
   }
 
-  registerProvider(name: string, instance: any, metadata: any) {
+  registerProvider(name: string, instance: PaymentProvider, meta: PaymentProviderMetadata) {
     this.providers.set(name, instance);
-    this.metadata.set(name, metadata);
+    this.metadata.set(name, meta);
   }
 
-  get(name: string): any {
+  get(name: string): PaymentProvider | undefined {
     return this.providers.get(name);
   }
 
-  getMetadata(name: string): any {
+  getMetadata(name: string): PaymentProviderMetadata | undefined {
     return this.metadata.get(name);
   }
 
-  getAll(): any[] {
+  getAll(): PaymentProvider[] {
     return Array.from(this.providers.values());
   }
 
-  getAllMetadata(): any[] {
+  getAllMetadata(): PaymentProviderMetadata[] {
     return Array.from(this.metadata.values());
   }
 

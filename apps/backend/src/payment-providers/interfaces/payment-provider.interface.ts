@@ -13,14 +13,14 @@ export interface CreateCustomerInput {
     country?: string;
   };
   taxId?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CustomerResult {
   id: string;
   email: string;
   name?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   provider: string;
   providerId: string;
   createdAt: Date;
@@ -31,7 +31,7 @@ export interface CreateSubscriptionInput {
   priceId: string;
   quantity?: number;
   trialDays?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   paymentMethodId?: string;
   prorationBehavior?: 'create_prorations' | 'none' | 'always_invoice';
 }
@@ -48,7 +48,7 @@ export interface SubscriptionResult {
   trialEnd?: Date;
   cancelAtPeriodEnd: boolean;
   canceledAt?: Date;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   provider: string;
   providerId: string;
 }
@@ -77,7 +77,7 @@ export interface CheckoutInput {
   cancelUrl: string;
   mode: 'payment' | 'subscription' | 'setup';
   trialDays?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   allowPromotionCodes?: boolean;
   billingAddressCollection?: 'auto' | 'required';
   customerUpdate?: {
@@ -109,7 +109,7 @@ export interface RefundInput {
   paymentId: string;
   amount?: number;
   reason?: 'duplicate' | 'fraudulent' | 'requested_by_customer';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface RefundResult {
@@ -149,7 +149,7 @@ export interface CreatePaymentMethodInput {
       country?: string;
     };
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface PaymentMethodResult {
@@ -191,7 +191,7 @@ export interface UsageRecordResult {
 export interface WebhookEvent {
   id: string;
   type: string;
-  data: any;
+  data: unknown;
   createdAt: Date;
   provider: string;
 }
@@ -199,7 +199,7 @@ export interface WebhookEvent {
 export interface PaymentProvider {
   readonly metadata: ProviderMetadata;
   
-  initialize(config: Record<string, any>): Promise<void>;
+  initialize(config: Record<string, unknown>): Promise<void>;
   
   createCustomer(data: CreateCustomerInput): Promise<CustomerResult>;
   getCustomer(providerCustomerId: string): Promise<CustomerResult | null>;
@@ -225,7 +225,7 @@ export interface PaymentProvider {
   recordUsage(data: UsageRecordInput): Promise<UsageRecordResult>;
   getUsageRecords(subscriptionId: string, metric: string, periodStart: Date, periodEnd: Date): Promise<UsageRecordResult[]>;
   
-  constructEvent(payload: any, signature: string, secret: string): WebhookEvent;
+  constructEvent(payload: string | Buffer, signature: string, secret: string): WebhookEvent;
   verifyWebhookSignature(payload: string, signature: string, secret: string): boolean;
   
   getSupportedFeatures(): ProviderFeature[];

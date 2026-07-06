@@ -3,8 +3,8 @@ import { Module, DynamicModule, Global } from '@nestjs/common';
 export interface PaymentProviderConfig {
   name: string;
   displayName: string;
-  providerClass: any;
-  config: Record<string, any>;
+  providerClass: new (...args: unknown[]) => unknown;
+  config: Record<string, unknown>;
 }
 
 export interface PaymentProvidersModuleOptions {

@@ -89,12 +89,13 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: this.configService.get<string>('config.jwt.expiresIn', '15m'),
-      }),
+      } as any),
       this.jwtService.signAsync(payload, {
         expiresIn: this.configService.get<string>('config.jwt.refreshExpiresIn', '7d'),
-      }),
+      } as any),
     ]);
 
     return { accessToken, refreshToken };
   }
+
 }

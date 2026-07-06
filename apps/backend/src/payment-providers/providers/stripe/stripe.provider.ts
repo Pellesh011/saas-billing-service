@@ -19,6 +19,7 @@ import {
   UsageRecordInput,
   UsageRecordResult,
   WebhookEvent,
+  PaymentMethodResult,
 } from '@/payment-providers/interfaces/payment-provider.interface';
 import { PaymentProvider as PaymentProviderDecorator } from '@/payment-providers/decorators/payment-provider.decorator';
 import { StripeConfigSchema } from '@/payment-providers/interfaces/provider-config';
@@ -79,7 +80,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
     // Initialize Stripe client
   }
 
-  async initialize(config: Record<string, any>): Promise<void> {
+  async initialize(config: Record<string, unknown>): Promise<void> {
     const validated = StripeConfigSchema.parse(config);
     this.secretKey = validated.secretKey;
     this.apiVersion = validated.apiVersion || '2023-10-16';
@@ -93,14 +94,14 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       name: data.name,
       phone: data.phone,
       address: data.address,
-      metadata: data.metadata,
+      metadata: data.metadata as Stripe.MetadataParam,
     });
 
     return {
       id: customer.id,
       email: customer.email || '',
       name: customer.name || undefined,
-      metadata: customer.metadata as Record<string, any>,
+      metadata: customer.metadata as Record<string, unknown>,
       provider: 'stripe',
       providerId: customer.id,
       createdAt: new Date(customer.created * 1000),
@@ -116,13 +117,13 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
         id: customer.id,
         email: customer.email || '',
         name: customer.name || undefined,
-        metadata: customer.metadata as Record<string, any>,
+        metadata: customer.metadata as Record<string, unknown>,
         provider: 'stripe',
         providerId: customer.id,
         createdAt: new Date(customer.created * 1000),
       };
-    } catch (error: any) {
-      if (error.code === 'resource_missing') return null;
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && (error as { code: string }).code === 'resource_missing') return null;
       throw error;
     }
   }
@@ -133,14 +134,14 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       name: data.name,
       phone: data.phone,
       address: data.address,
-      metadata: data.metadata,
+      metadata: data.metadata as Stripe.MetadataParam,
     });
 
     return {
       id: customer.id,
       email: customer.email || '',
       name: customer.name || undefined,
-      metadata: customer.metadata as Record<string, any>,
+      metadata: customer.metadata as Record<string, unknown>,
       provider: 'stripe',
       providerId: customer.id,
       createdAt: new Date(customer.created * 1000),
@@ -157,7 +158,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       customer: data.customerId,
       items: [{ price: data.priceId, quantity: data.quantity || 1 }],
       trial_period_days: data.trialDays,
-      metadata: data.metadata,
+      metadata: data.metadata as Stripe.MetadataParam,
       payment_behavior: 'default_incomplete',
       payment_settings: {
         payment_method_types: ['card'],
@@ -173,8 +174,8 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
     try {
       const subscription = await this.stripe.subscriptions.retrieve(providerSubscriptionId);
       return this.mapSubscription(subscription);
-    } catch (error: any) {
-      if (error.code === 'resource_missing') return null;
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && (error as { code: string }).code === 'resource_missing') return null;
       throw error;
     }
   }
@@ -183,8 +184,8 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
     const subscription = await this.stripe.subscriptions.update(providerSubscriptionId, {
       items: data.priceId ? [{ price: data.priceId, quantity: data.quantity || 1 }] : undefined,
       trial_end: data.trialDays ? Math.floor(Date.now() / 1000) + data.trialDays * 86400 : undefined,
-      metadata: data.metadata,
       proration_behavior: data.prorationBehavior,
+      metadata: data.metadata as Stripe.MetadataParam,
     });
 
     return this.mapSubscription(subscription);
@@ -229,13 +230,13 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       }],
       success_url: data.successUrl,
       cancel_url: data.cancelUrl,
-      metadata: data.metadata,
+      metadata: data.metadata as Stripe.MetadataParam,
       allow_promotion_codes: data.allowPromotionCodes,
       billing_address_collection: data.billingAddressCollection,
-      customer_update: data.customerUpdate,
+      customer_update: data.customerUpdate as Stripe.Checkout.SessionCreateParams.CustomerUpdate,
       subscription_data: data.mode === 'subscription' ? {
         trial_period_days: data.trialDays,
-        metadata: data.metadata,
+        metadata: data.metadata as Stripe.MetadataParam,
       } : undefined,
     });
 
@@ -267,7 +268,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       payment_intent: data.paymentId,
       amount: data.amount,
       reason: data.reason,
-      metadata: data.metadata,
+      metadata: data.metadata as Stripe.MetadataParam,
     });
     let status = RefundStatus.PENDING
     if (refund && typeof refund.status === 'string'){
@@ -287,7 +288,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
   }
 
   // Payment Methods
-  async attachPaymentMethod(customerId: string, paymentMethodId: string): Promise<any> {
+  async attachPaymentMethod(customerId: string, paymentMethodId: string): Promise<PaymentMethodResult> {
     const paymentMethod = await this.stripe.paymentMethods.attach(paymentMethodId, {
       customer: customerId,
     });
@@ -299,7 +300,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
     await this.stripe.paymentMethods.detach(paymentMethodId);
   }
 
-  async listPaymentMethods(customerId: string): Promise<any[]> {
+  async listPaymentMethods(customerId: string): Promise<PaymentMethodResult[]> {
     const paymentMethods = await this.stripe.paymentMethods.list({
       customer: customerId,
       type: 'card',
@@ -310,7 +311,8 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
 
   // Usage-based billing
   async recordUsage(data: UsageRecordInput): Promise<UsageRecordResult> {
-    const usageRecord = await this.stripe.subscriptionItems.createUsageRecord(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const usageRecord = await (this.stripe.subscriptionItems as any).createUsageRecord(
       data.subscriptionId,
       {
         quantity: data.quantity,
@@ -340,7 +342,7 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
   }
 
   // Webhooks
-  constructEvent(payload: any, signature: string, secret: string): WebhookEvent {
+  constructEvent(payload: string | Buffer, signature: string, secret: string): WebhookEvent {
     const event = this.stripe.webhooks.constructEvent(payload, signature, secret);
     return {
       id: event.id,
@@ -382,13 +384,13 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
       status: this.mapSubscriptionStatus(subscription.status),
       priceId: subscription.items.data[0]?.price.id || '',
       quantity: subscription.items.data[0]?.quantity || 1,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000), // eslint-disable-line @typescript-eslint/no-explicit-any
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000), // eslint-disable-line @typescript-eslint/no-explicit-any
       trialStart: subscription.trial_start ? new Date(subscription.trial_start * 1000) : undefined,
       trialEnd: subscription.trial_end ? new Date(subscription.trial_end * 1000) : undefined,
       cancelAtPeriodEnd: subscription.cancel_at_period_end,
       canceledAt: subscription.canceled_at ? new Date(subscription.canceled_at * 1000) : undefined,
-      metadata: subscription.metadata as Record<string, any>,
+      metadata: subscription.metadata as Record<string, unknown>,
       provider: 'stripe',
       providerId: subscription.id,
     };
@@ -418,17 +420,17 @@ export class StripeProvider implements PaymentProvider, OnModuleInit {
     return statusMap[status] || RefundStatus.PENDING;
   }
 
-  private mapPaymentMethod(pm: Stripe.PaymentMethod): any {
+  private mapPaymentMethod(pm: Stripe.PaymentMethod): PaymentMethodResult {
     return {
       id: pm.id,
       customerId: pm.customer as string,
-      type: pm.type,
+      type: pm.type as 'card' | 'bank_transfer' | 'wallet',
       card: pm.card ? {
         brand: pm.card.brand,
         last4: pm.card.last4,
         expMonth: pm.card.exp_month,
         expYear: pm.card.exp_year,
-        fingerprint: pm.card.fingerprint,
+        fingerprint: pm.card.fingerprint || '',
       } : undefined,
       isDefault: false,
       provider: 'stripe',

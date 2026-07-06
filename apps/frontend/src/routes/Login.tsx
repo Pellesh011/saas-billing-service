@@ -18,8 +18,11 @@ const Login = () => {
     try {
       await authProvider.login({ username: email, password });
       navigate('/');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Ошибка авторизации');
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'response' in err
+        ? ((err as { response: { data: { message: string } } }).response?.data?.message || 'Ошибка авторизации')
+        : 'Ошибка авторизации';
+      setError(message);
     } finally {
       setLoading(false);
     }
