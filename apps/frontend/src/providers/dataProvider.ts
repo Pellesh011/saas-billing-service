@@ -2,18 +2,21 @@ import { DataProvider, fetchUtils } from 'react-admin';
 
 const apiUrl = import.meta.env.VITE_API_URL || '/api';
 
-const httpClient = (url: string, options: any = {}) => {
+const httpClient = (url: string, options: fetchUtils.Options = {}) => {
   const token = localStorage.getItem('token');
   if (token) {
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
+    options = {
+      ...options,
+      headers: {
+        ...options.headers as Record<string, string>,
+        Authorization: `Bearer ${token}`,
+      },
     };
   }
   return fetchUtils.fetchJson(url, options);
 };
 
-const buildQuery = (params: Record<string, any>): string => {
+const buildQuery = (params: Record<string, unknown>): string => {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
@@ -25,8 +28,8 @@ const buildQuery = (params: Record<string, any>): string => {
 
 export const dataProvider: DataProvider = {
   getList: async (resource, params) => {
-    const { page, perPage } = params.pagination;
-    const { field, order } = params.sort;
+    const { page = 1, perPage = 10 } = params.pagination ?? {};
+    const { field = 'id', order = 'ASC' } = params.sort ?? {};
     const query = buildQuery({
       page: page,
       limit: perPage,

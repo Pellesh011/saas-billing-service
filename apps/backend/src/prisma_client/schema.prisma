@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "./generated"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -128,16 +128,16 @@ enum Currency {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
   firstName    String?
   lastName     String?
-  role         Role     @default(VIEWER)
-  isActive     Boolean  @default(true)
+  role         Role      @default(VIEWER)
+  isActive     Boolean   @default(true)
   lastLoginAt  DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   notifications Notification[]
 
@@ -145,24 +145,24 @@ model User {
 }
 
 model Customer {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String?
-  company     String?
-  phone       String?
-  address     Json?
-  taxId       String?
-  metadata    Json     @default("{}")
-  deletedAt   DateTime?
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  company   String?
+  phone     String?
+  address   Json?
+  taxId     String?
+  metadata  Json      @default("{}")
+  deletedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  subscriptions Subscription[]
-  invoices       Invoice[]
-  payments       Payment[]
-  paymentMethods PaymentMethod[]
-  usageRecords   UsageRecord[]
+  subscriptions     Subscription[]
+  invoices          Invoice[]
+  payments          Payment[]
+  paymentMethods    PaymentMethod[]
+  usageRecords      UsageRecord[]
   providerCustomers ProviderCustomer[]
 
   // FIX: missing opposite relation for Notification.customer
@@ -173,46 +173,46 @@ model Customer {
 }
 
 model Plan {
-  id          String   @id @default(cuid())
-  code        String   @unique
+  id          String  @id @default(cuid())
+  code        String  @unique
   name        String
   description String?
-  features    Json     @default("{}")
-  limits      Json     @default("{}")
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
+  features    Json    @default("{}")
+  limits      Json    @default("{}")
+  isActive    Boolean @default(true)
+  sortOrder   Int     @default(0)
   metadata    Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  versions    PlanVersion[]
+  versions PlanVersion[]
 
   @@map("plans")
 }
 
 model PlanVersion {
-  id          String   @id @default(cuid())
-  planId      String
-  version     Int
+  id      String @id @default(cuid())
+  planId  String
+  version Int
 
-  amount      Decimal @db.Decimal(14,2)
-  currency    Currency
-  interval    Interval
-  trialDays   Int     @default(0)
+  amount    Decimal  @db.Decimal(14, 2)
+  currency  Currency
+  interval  Interval
+  trialDays Int      @default(0)
 
-  validFrom   DateTime
-  validUntil  DateTime?
-  isActive    Boolean @default(true)
+  validFrom  DateTime
+  validUntil DateTime?
+  isActive   Boolean   @default(true)
 
-  metadata    Json?
+  metadata Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  plan        Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  plan Plan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
-  providerPlans ProviderPlan[]
+  providerPlans     ProviderPlan[]
   subscriptionItems SubscriptionItem[]
 
   @@unique([planId, version])
@@ -222,30 +222,30 @@ model PlanVersion {
 }
 
 model Subscription {
-  id          String   @id @default(cuid())
-  customerId  String
-  status      SubscriptionStatus @default(TRIALING)
+  id         String             @id @default(cuid())
+  customerId String
+  status     SubscriptionStatus @default(TRIALING)
 
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime
 
-  trialStart  DateTime?
-  trialEnd    DateTime?
+  trialStart DateTime?
+  trialEnd   DateTime?
 
-  cancelAtPeriodEnd Boolean @default(false)
-  canceledAt  DateTime?
-  pausedAt    DateTime?
+  cancelAtPeriodEnd Boolean   @default(false)
+  canceledAt        DateTime?
+  pausedAt          DateTime?
 
-  metadata    Json?
+  metadata Json?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
 
-  items SubscriptionItem[]
-  invoices Invoice[]
-  usageRecords UsageRecord[]
+  items                 SubscriptionItem[]
+  invoices              Invoice[]
+  usageRecords          UsageRecord[]
   providerSubscriptions ProviderSubscription[]
 
   @@index([customerId])
@@ -258,15 +258,15 @@ model SubscriptionItem {
   id String @id @default(cuid())
 
   subscriptionId String
-  planVersionId String
+  planVersionId  String
 
-  quantity Int @default(1)
+  quantity Int   @default(1)
   metadata Json?
 
   createdAt DateTime @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  planVersion PlanVersion @relation(fields: [planVersionId], references: [id])
+  planVersion  PlanVersion  @relation(fields: [planVersionId], references: [id])
 
   usageRecord UsageRecord[]
 
@@ -281,17 +281,17 @@ model SubscriptionItem {
 model ProviderUsageRecord {
   id String @id @default(uuid())
 
-  usageRecordId String
+  usageRecordId     String
   providerAccountId String
 
   providerUsageRecordId String
 
-  metric String
-  quantity Decimal @db.Decimal(18,6)
-  unit String?
+  metric   String
+  quantity Decimal @db.Decimal(18, 6)
+  unit     String?
 
   periodStart DateTime?
-  periodEnd DateTime?
+  periodEnd   DateTime?
 
   rawPayload Json?
 
@@ -311,24 +311,24 @@ model ProviderUsageRecord {
 model UsageRecord {
   id String @id @default(cuid())
 
-  subscriptionId String
-  customerId String
+  subscriptionId     String
+  customerId         String
   subscriptionItemId String?
 
-  metric String
-  quantity Decimal @db.Decimal(18,6)
-  unit String?
+  metric   String
+  quantity Decimal @db.Decimal(18, 6)
+  unit     String?
 
   periodStart DateTime
-  periodEnd DateTime
+  periodEnd   DateTime
 
   recordedAt DateTime @default(now())
-  metadata Json?
+  metadata   Json?
 
   createdAt DateTime @default(now())
 
-  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  subscription     Subscription      @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  customer         Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
   subscriptionItem SubscriptionItem? @relation(fields: [subscriptionItemId], references: [id], onDelete: SetNull)
 
   providerUsageRecords ProviderUsageRecord[]
@@ -344,38 +344,38 @@ model UsageRecord {
 model Invoice {
   id String @id @default(cuid())
 
-  customerId String
+  customerId     String
   subscriptionId String?
 
-  number String
+  number        String
   billingReason String?
 
   status InvoiceStatus @default(DRAFT)
 
   currency Currency
 
-  subtotal Decimal @db.Decimal(14,2)
-  discount Decimal @default(0) @db.Decimal(14,2)
-  tax Decimal @default(0) @db.Decimal(14,2)
-  total Decimal @db.Decimal(14,2)
-  amountPaid Decimal @default(0) @db.Decimal(14,2)
-  amountDue Decimal @db.Decimal(14,2)
+  subtotal   Decimal @db.Decimal(14, 2)
+  discount   Decimal @default(0) @db.Decimal(14, 2)
+  tax        Decimal @default(0) @db.Decimal(14, 2)
+  total      Decimal @db.Decimal(14, 2)
+  amountPaid Decimal @default(0) @db.Decimal(14, 2)
+  amountDue  Decimal @db.Decimal(14, 2)
 
-  dueDate DateTime?
-  paidAt DateTime?
+  dueDate  DateTime?
+  paidAt   DateTime?
   voidedAt DateTime?
-  notes String?
+  notes    String?
 
   metadata Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict)
   subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
-  items InvoiceItem[]
-  payments Payment[]
+  items            InvoiceItem[]
+  payments         Payment[]
   providerInvoices ProviderInvoice[]
 
   @@unique([customerId, number])
@@ -387,21 +387,21 @@ model Invoice {
 model InvoiceItem {
   id String @id @default(cuid())
 
-  invoiceId String
+  invoiceId          String
   subscriptionItemId String?
 
-  type LineItemType
+  type        LineItemType
   description String
 
-  quantity Decimal @default(1) @db.Decimal(18,6)
-  unitPrice Decimal @db.Decimal(14,2)
-  amount Decimal @db.Decimal(14,2)
+  quantity  Decimal @default(1) @db.Decimal(18, 6)
+  unitPrice Decimal @db.Decimal(14, 2)
+  amount    Decimal @db.Decimal(14, 2)
 
   metadata Json?
 
   createdAt DateTime @default(now())
 
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice          Invoice           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   subscriptionItem SubscriptionItem? @relation(fields: [subscriptionItemId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
@@ -412,24 +412,24 @@ model PaymentMethod {
   id String @id @default(cuid())
 
   customerId String
-  type PaymentMethodType
+  type       PaymentMethodType
 
   displayName String?
-  brand String?
-  last4 String?
-  expMonth Int?
-  expYear Int?
-  holderName String?
+  brand       String?
+  last4       String?
+  expMonth    Int?
+  expYear     Int?
+  holderName  String?
 
   isDefault Boolean @default(false)
-  metadata Json?
+  metadata  Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
-  payments Payment[]
+  payments               Payment[]
   providerPaymentMethods ProviderPaymentMethod[]
 
   @@index([customerId])
@@ -439,17 +439,17 @@ model PaymentMethod {
 model Payment {
   id String @id @default(cuid())
 
-  invoiceId String?
-  customerId String
+  invoiceId       String?
+  customerId      String
   paymentMethodId String?
 
   status PaymentStatus @default(PENDING)
 
-  amount Decimal @db.Decimal(14,2)
+  amount   Decimal  @db.Decimal(14, 2)
   currency Currency
 
-  failureCode String?
-  failureMessage String?
+  failureCode     String?
+  failureMessage  String?
   failureCategory String?
 
   metadata Json?
@@ -457,11 +457,11 @@ model Payment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  invoice       Invoice?       @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  customer      Customer       @relation(fields: [customerId], references: [id], onDelete: Restrict)
   paymentMethod PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
 
-  refunds Refund[]
+  refunds          Refund[]
   providerPayments ProviderPayment[]
 
   @@index([customerId])
@@ -475,12 +475,12 @@ model Refund {
   id String @id @default(cuid())
 
   paymentId String
-  status RefundStatus @default(PENDING)
+  status    RefundStatus @default(PENDING)
 
-  amount Decimal @db.Decimal(14,2)
+  amount   Decimal  @db.Decimal(14, 2)
   currency Currency
 
-  reason String?
+  reason   String?
   metadata Json?
 
   createdAt DateTime @default(now())
@@ -496,43 +496,43 @@ model Refund {
 }
 
 model PaymentProvider {
-  id String @id @default(uuid())
-  code String @unique
-  name String
-  isActive Boolean @default(true)
+  id           String   @id @default(uuid())
+  code         String   @unique
+  name         String
+  isActive     Boolean  @default(true)
   configSchema Json?
-  createdAt DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   accounts PaymentProviderAccount[]
 }
 
 model PaymentProviderAccount {
-  id String @id @default(uuid())
+  id         String  @id @default(uuid())
   providerId String
-  name String
-  isActive Boolean @default(true)
+  name       String
+  isActive   Boolean @default(true)
 
-  credentialsEncrypted Json
+  credentialsEncrypted   Json
   webhookSecretEncrypted String?
-  webhookUrl String?
-  externalAccountId String?
-  metadata Json?
+  webhookUrl             String?
+  externalAccountId      String?
+  metadata               Json?
 
   createdAt DateTime @default(now())
 
   provider PaymentProvider @relation(fields: [providerId], references: [id])
 
-  customers ProviderCustomer[]
-  subscriptions ProviderSubscription[]
+  customers      ProviderCustomer[]
+  subscriptions  ProviderSubscription[]
   paymentMethods ProviderPaymentMethod[]
 
   providerUsageRecord ProviderUsageRecord[]
-  invoices ProviderInvoice[]
-  payments ProviderPayment[]
-  refunds ProviderRefund[]
-  events ProviderEvent[]
-  webhooks Webhook[]
-  providerPlans ProviderPlan[]
+  invoices            ProviderInvoice[]
+  payments            ProviderPayment[]
+  refunds             ProviderRefund[]
+  events              ProviderEvent[]
+  webhooks            Webhook[]
+  providerPlans       ProviderPlan[]
 
   @@unique([providerId, externalAccountId])
   @@index([providerId])
@@ -541,18 +541,18 @@ model PaymentProviderAccount {
 model ProviderPlan {
   id String @id @default(uuid())
 
-  planVersionId String
+  planVersionId     String
   providerAccountId String
 
   providerPlanId String
-  status String
+  status         String
 
   rawPayload Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  planVersion PlanVersion @relation(fields: [planVersionId], references: [id], onDelete: Cascade)
-  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+  planVersion PlanVersion            @relation(fields: [planVersionId], references: [id], onDelete: Cascade)
+  account     PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 
   @@unique([providerAccountId, providerPlanId])
   @@index([planVersionId])
@@ -561,16 +561,16 @@ model ProviderPlan {
 model ProviderCustomer {
   id String @id @default(uuid())
 
-  customerId String
+  customerId        String
   providerAccountId String
 
   providerCustomerId String
-  email String?
-  rawPayload Json?
-  createdAt DateTime @default(now())
+  email              String?
+  rawPayload         Json?
+  createdAt          DateTime @default(now())
 
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+  customer Customer               @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  account  PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 
   @@unique([providerAccountId, providerCustomerId])
 }
@@ -578,21 +578,21 @@ model ProviderCustomer {
 model ProviderSubscription {
   id String @id @default(uuid())
 
-  subscriptionId String
+  subscriptionId    String
   providerAccountId String
 
   providerSubscriptionId String
-  status String
+  status                 String
 
   currentPeriodStart DateTime?
-  currentPeriodEnd DateTime?
-  cancelAtPeriodEnd Boolean?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean?
 
-  rawPayload Json?
+  rawPayload   Json?
   lastSyncedAt DateTime?
 
-  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+  subscription Subscription           @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  account      PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 
   @@unique([providerAccountId, providerSubscriptionId])
 }
@@ -600,20 +600,20 @@ model ProviderSubscription {
 model ProviderPaymentMethod {
   id String @id @default(uuid())
 
-  paymentMethodId String
+  paymentMethodId   String
   providerAccountId String
 
   providerPaymentMethodId String
-  type String
-  isDefault Boolean @default(false)
+  type                    String
+  isDefault               Boolean @default(false)
 
   billingDetails Json?
-  rawPayload Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  rawPayload     Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  paymentMethod PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
-  account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
+  paymentMethod PaymentMethod          @relation(fields: [paymentMethodId], references: [id], onDelete: Cascade)
+  account       PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 
   @@unique([providerAccountId, providerPaymentMethodId])
 }
@@ -621,56 +621,56 @@ model ProviderPaymentMethod {
 model ProviderInvoice {
   id String @id @default(uuid())
 
-  invoiceId String
+  invoiceId         String
   providerAccountId String
 
   providerInvoiceId String
-  status String
-  pdfUrl String?
+  status            String
+  pdfUrl            String?
 
   rawPayload Json?
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
-  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoice Invoice                @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 }
 
 model ProviderPayment {
   id String @id @default(uuid())
 
-  paymentId String
+  paymentId         String
   providerAccountId String
 
   providerPaymentId String
-  status String
+  status            String
 
-  amountCents Int
-  currency Currency
+  amountCents   Int
+  currency      Currency
   failureReason String?
 
   rawPayload Json?
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
-  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  payment Payment                @relation(fields: [paymentId], references: [id], onDelete: Cascade)
   account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 }
 
 model ProviderRefund {
   id String @id @default(uuid())
 
-  refundId String
+  refundId          String
   providerAccountId String
 
   providerRefundId String
-  status String
+  status           String
 
   amountCents Int
-  currency Currency
+  currency    Currency
 
   rawPayload Json?
-  createdAt DateTime @default(now())
+  createdAt  DateTime @default(now())
 
-  refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  refund  Refund                 @relation(fields: [refundId], references: [id], onDelete: Cascade)
   account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 }
 
@@ -680,14 +680,14 @@ model ProviderEvent {
   providerAccountId String
 
   providerEventId String
-  eventType String
+  eventType       String
 
   payload Json
 
-  receivedAt DateTime @default(now())
-  processedAt DateTime?
+  receivedAt       DateTime            @default(now())
+  processedAt      DateTime?
   processingStatus ProviderEventStatus
-  error String?
+  error            String?
 
   account PaymentProviderAccount @relation(fields: [providerAccountId], references: [id], onDelete: Cascade)
 
@@ -701,9 +701,9 @@ model Webhook {
   id String @id @default(uuid())
 
   providerAccountId String
-  eventType String
+  eventType         String
 
-  endpointUrl String
+  endpointUrl     String
   secretEncrypted String?
 
   status WebhookStatus @default(ACTIVE)
@@ -721,18 +721,18 @@ model WebhookDelivery {
   id String @id @default(uuid())
 
   webhookId String
-  eventId String
+  eventId   String
 
   status WebhookDeliveryStatus @default(PENDING)
 
-  requestBody Json
+  requestBody  Json
   responseBody Json?
-  httpStatus Int?
+  httpStatus   Int?
 
-  attempt Int @default(1)
+  attempt     Int       @default(1)
   nextRetryAt DateTime?
 
-  createdAt DateTime @default(now())
+  createdAt   DateTime  @default(now())
   processedAt DateTime?
 
   webhook Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
@@ -745,12 +745,12 @@ model AuditLog {
   id String @id @default(uuid())
 
   actorType String
-  actorId String?
+  actorId   String?
 
   action String
 
   entityType String
-  entityId String
+  entityId   String
 
   metadata Json?
 
@@ -767,25 +767,25 @@ model AuditLog {
 model Notification {
   id String @id @default(uuid())
 
-  userId String
+  userId     String
   customerId String?
 
-  type NotificationType
+  type    NotificationType
   channel NotificationChannel
 
   event String
 
-  title String?
+  title   String?
   message String?
 
   payload Json?
 
   status NotificationStatus @default(PENDING)
 
-  sentAt DateTime?
-  createdAt DateTime @default(now())
+  sentAt    DateTime?
+  createdAt DateTime  @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   customer Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
 
   @@index([userId, status])

@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- Initial project setup with monorepo (pnpm + Turborepo)
+- Initial project setup with monorepo (npm + Turborepo)
 - Backend: NestJS + TypeScript + Prisma + PostgreSQL
 - Frontend: React Admin + Vite + Redux Toolkit + Tailwind
 - Shared packages for types, validators, and UI components
