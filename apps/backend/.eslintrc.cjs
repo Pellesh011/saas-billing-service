@@ -8,7 +8,7 @@ module.exports = {
   plugins: ['@typescript-eslint/eslint-plugin'],
   root: true,
   env: { node: true, jest: true },
-  ignorePatterns: ['.eslintrc.cjs'],
+  ignorePatterns: ['.eslintrc.cjs', 'prisma.config.js', 'prisma.config.d.ts'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',

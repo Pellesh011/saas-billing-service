@@ -1,15 +1,28 @@
 import { AuthProvider, HttpError } from 'react-admin';
+import authClient from './authClient';
 import apiClient from './apiClient';
 
-let cachedMe: { id: string; email: string; role: string; firstName?: string; lastName?: string } | null = null;
-let mePromise: Promise<{ id: string; email: string; role: string; firstName?: string; lastName?: string } | null> | null = null;
+let cachedMe: {
+  id: string;
+  email: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+} | null = null;
+let mePromise: Promise<{
+  id: string;
+  email: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+} | null> | null = null;
 
 async function fetchMe() {
   if (mePromise) return mePromise;
   mePromise = (async () => {
     try {
       const response = await apiClient.get('/auth/me');
-      const { id, email, role, firstName, lastName } = response.data.data ?? response.data;
+      const { id, email, role, firstName, lastName } = response.data;
       cachedMe = { id, email, role, firstName, lastName };
       return cachedMe;
     } catch {
@@ -24,11 +37,14 @@ async function fetchMe() {
 
 export const authProvider: AuthProvider = {
   login: async ({ username, password }) => {
-    const response = await apiClient.post('/auth/login', {
-      email: username,
+    const client_id = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
+    const response = await authClient.post('/protocol/openid-connect/token', {
+      client_id: client_id,
+      username,
       password,
+      grant_type: 'password',
     });
-    const { accessToken, refreshToken } = response.data.data ?? response.data;
+    const { accessToken, refreshToken } = response.data;
     localStorage.setItem('token', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     cachedMe = null;

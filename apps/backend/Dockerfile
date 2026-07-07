@@ -7,9 +7,11 @@ COPY package.json package-lock.json ./
 
 COPY apps/backend/package.json ./apps/backend/
 
-RUN node -e "const p=require('./package.json');p.workspaces=['apps/backend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))" && npm ci
+RUN node -e "const p=require('./package.json');p.workspaces=['apps/backend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))"
+RUN npm ci --verbose
 
 COPY tsconfig.base.json ./
+COPY prisma.config.ts ./
 COPY apps/backend/tsconfig.json ./apps/backend/
 COPY apps/backend/nest-cli.json ./apps/backend/
 COPY apps/backend/src/prisma_client ./apps/backend/src/prisma_client
