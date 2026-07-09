@@ -38,6 +38,8 @@
   "globalEnv": [
     "DATABASE_URL",
     "REDIS_URL",
-    "JWT_SECRET"
+    "KEYCLOAK_URL",
+    "KEYCLOAK_REALM",
+    "KEYCLOAK_CLIENT_ID"
   ]
 }

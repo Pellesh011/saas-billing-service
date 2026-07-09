@@ -8,10 +8,10 @@ export default registerAs('config', () => ({
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
   },
-  jwt: {
-    secret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
-    expiresIn: process.env.JWT_EXPIRATION || '15m',
-    refreshExpiresIn: process.env.REFRESH_TOKEN_EXPIRATION || '7d',
+  keycloak: {
+    url: process.env.KEYCLOAK_URL || 'http://localhost:8080',
+    realm: process.env.KEYCLOAK_REALM || 'billing',
+    clientId: process.env.KEYCLOAK_CLIENT_ID || 'backend',
   },
   email: {
     host: process.env.SMTP_HOST,
