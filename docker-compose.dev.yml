@@ -83,12 +83,14 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       NODE_ENV: development
       PORT: 3001
+      NODE_OPTIONS: '--inspect=0.0.0.0:9229'
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-billing}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-backend}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
     ports:
       - '3001:3001'
+      - '9229:9229'
     depends_on:
       postgres:
         condition: service_healthy

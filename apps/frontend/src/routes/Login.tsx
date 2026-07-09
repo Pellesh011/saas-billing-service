@@ -1,7 +1,7 @@
+import { authProvider } from '@/providers/authProvider';
 import { Box, Card, CardContent, Typography, TextField, Button, Stack } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authProvider } from '@/providers/authProvider';
 
 const Login = () => {
   const [email, setEmail] = useState('');

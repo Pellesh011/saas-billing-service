@@ -1,11 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PaymentProviderRegistry } from './payment-provider.registry';
-import {
-  PAYMENT_PROVIDERS_OPTIONS,
-  PaymentProvidersModuleOptions,
-  PaymentProviderConfig,
-} from '../payment-providers.module';
+import { PAYMENT_PROVIDERS_OPTIONS, PaymentProviderConfig } from '../payment-providers.module';
 import { PaymentProvider } from '../interfaces/payment-provider.interface';
+
+import type { PaymentProvidersModuleOptions } from '../payment-providers.module';
 
 @Injectable()
 export class PaymentProviderFactory {
