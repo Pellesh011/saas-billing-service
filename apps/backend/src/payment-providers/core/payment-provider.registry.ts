@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
-import { PAYMENT_PROVIDER_METADATA_KEY, PaymentProviderMetadata } from '../decorators/payment-provider.decorator';
-import { PaymentProvider } from '../interfaces/payment-provider.interface';
+import { PAYMENT_PROVIDER_METADATA_KEY, PaymentProviderMetadata } from '../decorators/payment-provider.decorator.js';
+import { PaymentProvider } from '../interfaces/payment-provider.interface.js';
 
 @Injectable()
 export class PaymentProviderRegistry implements OnModuleInit {

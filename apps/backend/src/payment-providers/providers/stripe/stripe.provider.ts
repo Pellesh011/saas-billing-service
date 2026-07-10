@@ -20,10 +20,10 @@ import {
   UsageRecordResult,
   WebhookEvent,
   PaymentMethodResult,
-} from '@/payment-providers/interfaces/payment-provider.interface';
-import { PaymentProvider as PaymentProviderDecorator } from '@/payment-providers/decorators/payment-provider.decorator';
-import { StripeConfigSchema } from '@/payment-providers/interfaces/provider-config';
-import { ProviderFeature } from '@/payment-providers/interfaces/provider-metadata';
+} from '../../interfaces/payment-provider.interface.js';
+import { PaymentProvider as PaymentProviderDecorator } from '../../decorators/payment-provider.decorator.js';
+import { StripeConfigSchema } from '../../interfaces/provider-config.js';
+import { ProviderFeature } from '../../interfaces/provider-metadata.js';
 
 const stripeMetadata = {
   name: 'stripe',

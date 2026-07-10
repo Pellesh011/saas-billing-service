@@ -8,6 +8,11 @@ build/
 
 .cursor/
 tsconfig.tsbuildinfo
+# Prisma config generated output
+apps/backend/prisma.config.js
+apps/backend/prisma.config.js.map
+apps/backend/prisma.config.d.ts
+apps/backend/prisma.config.d.ts.map
 
 # Environment
 .env
@@ -43,6 +48,7 @@ docker-compose.override.yml
 
 # Prisma
 apps/backend/prisma/migrations/
+apps/backend/src/prisma_client/generated/
 
 # Misc
 *.tgz

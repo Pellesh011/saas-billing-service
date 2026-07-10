@@ -1,4 +1,4 @@
-import { ProviderMetadata, ProviderFeature } from './provider-metadata';
+import { ProviderMetadata, ProviderFeature } from './provider-metadata.js';
 
 export interface CreateCustomerInput {
   email: string;

@@ -50,7 +50,12 @@ export const PlanCreate = () => (
       <TextInput source="description" label="Описание" multiline />
       <NumberInput source="price" label="Цена" validate={required()} />
       <SelectInput source="currency" label="Валюта" choices={currencyChoices} defaultValue="RUB" />
-      <SelectInput source="interval" label="Период" choices={intervalChoices} defaultValue="MONTH" />
+      <SelectInput
+        source="interval"
+        label="Период"
+        choices={intervalChoices}
+        defaultValue="MONTH"
+      />
       <NumberInput source="trialDays" label="Дней триала" defaultValue={0} />
       <NumberInput source="sortOrder" label="Порядок сортировки" defaultValue={0} />
       <BooleanInput source="isActive" label="Активен" defaultValue={true} />

@@ -16,10 +16,10 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "../models"
-import { type PrismaClient } from "./class"
+import type * as Prisma from "../models.js"
+import { type PrismaClient } from "./class.js"
 
-export type * from '../models'
+export type * from '../models.js'
 
 export type DMMF = typeof runtime.DMMF
 
@@ -2469,6 +2469,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  keycloakId: 'keycloakId',
   email: 'email',
   passwordHash: 'passwordHash',
   firstName: 'firstName',

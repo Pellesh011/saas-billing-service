@@ -1,7 +1,7 @@
+import { authProvider } from '@/providers/authProvider';
 import { Box, Card, CardContent, Typography, TextField, Button, Stack } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authProvider } from '@/providers/authProvider';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -19,9 +19,11 @@ const Login = () => {
       await authProvider.login({ username: email, password });
       navigate('/');
     } catch (err: unknown) {
-      const message = err && typeof err === 'object' && 'response' in err
-        ? ((err as { response: { data: { message: string } } }).response?.data?.message || 'Ошибка авторизации')
-        : 'Ошибка авторизации';
+      const message =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response: { data: { message: string } } }).response?.data?.message ||
+            'Ошибка авторизации'
+          : 'Ошибка авторизации';
       setError(message);
     } finally {
       setLoading(false);
@@ -49,8 +51,7 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={2} sx={{ mt: 2 }}>
               <TextField
-                label="Email"
-                type="email"
+                label="username"
                 fullWidth
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

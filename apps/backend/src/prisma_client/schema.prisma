@@ -129,8 +129,9 @@ enum Currency {
 
 model User {
   id           String    @id @default(cuid())
+  keycloakId   String?   @unique
   email        String    @unique
-  passwordHash String
+  passwordHash String?
   firstName    String?
   lastName     String?
   role         Role      @default(VIEWER)
@@ -172,6 +173,20 @@ model Customer {
   @@map("customers")
 }
 
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  plans Plan[]
+
+  @@map("products")
+}
+
 model Plan {
   id          String  @id @default(cuid())
   code        String  @unique
@@ -183,11 +198,15 @@ model Plan {
   sortOrder   Int     @default(0)
   metadata    Json?
 
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   versions PlanVersion[]
 
+  @@index([productId])
   @@map("plans")
 }
 
