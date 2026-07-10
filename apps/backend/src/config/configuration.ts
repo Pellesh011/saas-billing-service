@@ -12,6 +12,11 @@ export default registerAs('config', () => ({
     url: process.env.KEYCLOAK_URL || 'http://localhost:8080',
     realm: process.env.KEYCLOAK_REALM || 'billing',
     clientId: process.env.KEYCLOAK_CLIENT_ID || 'backend',
+    clientSecret: process.env.KEYCLOAK_CLIENT_SECRET,
+    adminClientId: process.env.KEYCLOAK_ADMIN_CLIENT_ID || 'admin-cli',
+    adminClientSecret: process.env.KEYCLOAK_ADMIN_CLIENT_SECRET,
+    serviceAccountClientId: process.env.KEYCLOAK_SERVICE_ACCOUNT_CLIENT_ID || 'backend',
+    serviceAccountClientSecret: process.env.KEYCLOAK_SERVICE_ACCOUNT_CLIENT_SECRET,
   },
   email: {
     host: process.env.SMTP_HOST,
@@ -19,5 +24,5 @@ export default registerAs('config', () => ({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
     from: process.env.EMAIL_FROM,
-  }
+  },
 }));
