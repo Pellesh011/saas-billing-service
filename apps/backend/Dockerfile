@@ -11,7 +11,8 @@ RUN node -e "const p=require('./package.json');p.workspaces=['apps/backend'];req
 RUN npm ci --verbose
 
 COPY tsconfig.base.json ./
-COPY prisma.config.ts ./
+
+COPY apps/backend/prisma.config.ts ./
 COPY apps/backend/tsconfig.json ./apps/backend/
 COPY apps/backend/nest-cli.json ./apps/backend/
 COPY apps/backend/src/prisma_client ./apps/backend/src/prisma_client
