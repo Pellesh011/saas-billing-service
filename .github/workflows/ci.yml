@@ -54,8 +54,11 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run db:generate
+        working-directory: apps/backend
       - run: npm run db:push
+        working-directory: apps/backend
       - run: npm run test:ci
+        working-directory: apps/backend
 
   build:
     needs: [lint-and-typecheck, test]
