@@ -69,8 +69,8 @@ services:
         cd apps/backend &&
         npx prisma generate &&
         npx prisma db push --accept-data-loss &&
-        npx ts-node src/prisma_client/seed.ts &&
-        npx nest start --watch
+        npx tsx src/prisma_client/seed.ts &&
+        npx nest start --watch --inspect=0.0.0.0:9229
       "
     volumes:
       - .:/app
@@ -83,7 +83,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       NODE_ENV: development
       PORT: 3001
-      NODE_OPTIONS: '--inspect=0.0.0.0:9229'
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-billing}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-backend}

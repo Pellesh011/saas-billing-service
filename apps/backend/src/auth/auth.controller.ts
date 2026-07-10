@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { KeycloakAuthGuard } from '../common/guards/keycloak-auth.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { KeycloakAuthGuard } from '../common/guards/keycloak-auth.guard.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @ApiTags('auth')
 @Controller('auth')

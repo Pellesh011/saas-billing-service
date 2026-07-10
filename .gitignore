@@ -48,6 +48,7 @@ docker-compose.override.yml
 
 # Prisma
 apps/backend/prisma/migrations/
+apps/backend/src/prisma_client/generated/
 
 # Misc
 *.tgz

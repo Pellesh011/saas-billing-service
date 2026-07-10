@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './auth.controller';
-import { KeycloakStrategy } from './strategies/keycloak.strategy';
-import { PrismaModule } from '../prisma/prisma.module';
+import { AuthController } from './auth.controller.js';
+import { KeycloakStrategy } from './strategies/keycloak.strategy.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
   imports: [

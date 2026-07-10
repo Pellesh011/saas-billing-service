@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { passportJwtSecret } from 'jwks-rsa';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Role } from '../../prisma_client/generated/client';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { Role } from '../../prisma_client/generated/client.js';
 
 interface KeycloakTokenPayload {
   sub: string;

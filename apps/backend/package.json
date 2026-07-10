@@ -2,6 +2,7 @@
   "name": "@saas-billing/backend",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
