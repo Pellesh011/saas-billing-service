@@ -1,5 +1,5 @@
-import { PaymentProviderMetadata } from '../../decorators/payment-provider.decorator';
-import { ProviderFeature } from '../../interfaces/provider-metadata';
+import { PaymentProviderMetadata } from '../../decorators/payment-provider.decorator.js';
+import { ProviderFeature } from '../../interfaces/provider-metadata.js';
 
 export const STRIPE_PROVIDER_METADATA: PaymentProviderMetadata = {
   name: 'stripe',

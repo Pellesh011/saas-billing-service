@@ -5,18 +5,18 @@
 ## Технологический стек
 
 ### Backend
-- **Framework**: NestJS 10+ с TypeScript
-- **Database**: PostgreSQL 15+ с Prisma ORM
-- **Auth**: JWT + Passport
+- **Framework**: NestJS 11+ с TypeScript
+- **Database**: PostgreSQL 16+ с Prisma ORM
+- **Auth**: Keycloak 25 (OpenID Connect / JWT)
 - **Payments**: Stripe (MVP)
 - **Queue**: BullMQ + Redis
 - **Docs**: Swagger/OpenAPI
 
 ### Frontend
-- **Framework**: React 18 + TypeScript + Vite
-- **Admin**: React Admin 4.x (MUI-based)
+- **Framework**: React 19 + TypeScript + Vite
+- **Admin**: React Admin 5.x (MUI-based)
 - **State**: Redux Toolkit
-- **Styling**: Tailwind CSS + MUI
+- **Auth**: keycloak-js + ra-keycloak
 
 ### Инфраструктура
 - **Containerization**: Docker + Docker Compose
@@ -26,30 +26,58 @@
 ## Быстрый старт
 
 ### Предварительные требования
-- Node.js 20+
+- Node.js 22+
 - npm 10+
 - Docker & Docker Compose
 - Аккаунт Stripe
 
-### Установка и запуск
+### 1. Настройка окружения
 
 ```bash
 # Клонируем и устанавливаем зависимости
-git clone https://github.com/Pellesh011/saas-billing-service.git
+git clone <repo-url>
 cd saas-billing-service
 npm install
 
 # Настраиваем окружение
 cp .env.example .env
 # Редактируем .env с вашими значениями
+```
 
-# Запускаем инфраструктуру
-docker-compose up -d postgres redis
+### 2. Инициализация Keycloak
 
-# Запускаем миграции БД
+Перед первым запуском нужно создать Docker volume и скопировать realm-export:
+
+```bash
+# Создать volume и импортировать realm
+bash keycloak/seed-volume.sh
+```
+
+Это создаст volume `saas-billing_keycloak_import` с конфигурацией realm `billing`.
+
+По умолчанию создаются пользователи:
+| Логин | Пароль | Роль |
+|---|---|---|
+| `admin` | `admin123` | ADMIN |
+| `manager` | `manager123` | MANAGER |
+
+### 3. Запуск инфраструктуры
+
+```bash
+docker compose up -d
+```
+
+После запуска Keycloak будет доступен по адресу http://localhost:8080 (admin / admin).
+
+### 4. Миграции БД
+
+```bash
 npm run db:migrate
+```
 
-# Запускаем dev-серверы
+### 5. Запуск dev-серверов
+
+```bash
 npm run dev
 ```
 
@@ -57,6 +85,7 @@ npm run dev
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - API Docs: http://localhost:3001/api/docs
+- Keycloak Admin: http://localhost:8080 (admin / admin)
 - Prisma Studio: `npm run db:studio`
 
 ## Структура проекта
@@ -70,8 +99,25 @@ saas-billing-service/
 │   ├── shared/       # Общие типы, валидаторы, утилиты
 │   ├── ui/           # Общие UI компоненты
 │   └── config/       # Общие конфигурации
-└── docker-compose.yml
+├── keycloak/
+│   ├── realm-export.json   # Realm configuration
+│   └── seed-volume.sh      # Volume seeding script
+├── docker-compose.yml      # Production compose
+├── docker-compose.dev.yml  # Development compose
+└── turbo.json
 ```
+
+## Аутентификация
+
+Аутентификация осуществляется через **Keycloak** (OpenID Connect).
+
+1. Frontend перенаправляет пользователя на страницу логина Keycloak
+2. После успешного входа Keycloak выдаёт JWT-токен
+3. Frontend отправляет токен в заголовке `Authorization: Bearer <token>` к API
+4. Backend проверяет подпись токена через JWKS-эндпоинт Keycloak
+5. Пользователь автоматически создаётся в локальной БД (auto-provision)
+
+Роли (realm roles): `ADMIN`, `MANAGER`, `VIEWER`.
 
 ## Доступные команды
 

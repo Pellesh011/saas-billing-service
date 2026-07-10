@@ -6,7 +6,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/frontend/package.json ./apps/frontend/
 
-RUN node -e "const p=require('./package.json');p.workspaces=['apps/frontend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))" && npm ci
+RUN node -e "const p=require('./package.json');p.workspaces=['apps/frontend'];require('fs').writeFileSync('./package.json',JSON.stringify(p,null,2))"
+RUN npm ci --verbose
 
 COPY tsconfig.base.json ./
 COPY apps/frontend/tsconfig.json ./apps/frontend/

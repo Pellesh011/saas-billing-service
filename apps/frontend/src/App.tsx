@@ -6,14 +6,11 @@ import { PlanList, PlanCreate, PlanEdit } from './pages/Plans/PlanList';
 import { CustomerList, CustomerCreate, CustomerEdit } from './pages/Customers/CustomerList';
 import { SubscriptionList } from './pages/Subscriptions/SubscriptionList';
 import { InvoiceList } from './pages/Invoices/InvoiceList';
-import Login from './routes/Login';
-
 const App = () => (
   <Admin
     dataProvider={dataProvider}
     authProvider={authProvider}
     dashboard={Dashboard}
-    loginPage={Login}
     title="SaaS Billing"
   >
     <Resource
@@ -30,16 +27,8 @@ const App = () => (
       edit={CustomerEdit}
       options={{ label: 'Клиенты' }}
     />
-    <Resource
-      name="subscriptions"
-      list={SubscriptionList}
-      options={{ label: 'Подписки' }}
-    />
-    <Resource
-      name="invoices"
-      list={InvoiceList}
-      options={{ label: 'Счета' }}
-    />
+    <Resource name="subscriptions" list={SubscriptionList} options={{ label: 'Подписки' }} />
+    <Resource name="invoices" list={InvoiceList} options={{ label: 'Счета' }} />
   </Admin>
 );
 

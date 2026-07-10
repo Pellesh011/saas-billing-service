@@ -1,3 +1,3 @@
-export { StripeProvider } from './stripe.provider';
-export { StripeConfigSchema } from '../../interfaces/provider-config';
-export type { StripeConfig } from '../../interfaces/provider-config';
+export { StripeProvider } from './stripe.provider.js';
+export { StripeConfigSchema } from '../../interfaces/provider-config.js';
+export type { StripeConfig } from '../../interfaces/provider-config.js';
