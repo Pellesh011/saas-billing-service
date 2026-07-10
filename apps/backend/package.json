@@ -21,6 +21,7 @@
     "docker:build": "docker build -t saas-billing/backend ."
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.1.27",
     "@nestjs/config": "^4.0.4",
